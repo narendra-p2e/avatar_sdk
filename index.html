@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MAI Labs Avatar</title>
+
+    <style>
+        .overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: hsla(0, 0%, 50%, 0.5);
+            padding: 1em;
+            box-sizing: border-box;
+        }
+
+        .overlay.visible {
+            display: block;
+        }
+
+        #editor_close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 1em;
+            transform: translate(.5em, -.5em);
+        }
+
+        #editor_iframe {
+            width: 90%;
+            height: 90%;
+
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            border: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="button" id="editor_open" value="open the creator">
+
+    <div class="overlay" id="editor">
+        <input type="button" id="editor_close" value="close">
+    </div>
+
+    <script>
+        const CLIENT_ID = "";
+        const CLIENT_SECRET = "";
+        const AVATAR_CODE_TO_SHOW = "";
+        const EDITOR_URL = "https://metaperson.avatarsdk.com/iframe.html";
+
+        document.addEventListener('DOMContentLoaded', function onDocumentReady() {
+            window.addEventListener("message", onWindowMessage);
+
+            document.getElementById("editor_open").addEventListener("click", onEditorOpen);
+            document.getElementById("editor_close").addEventListener("click", onEditorClose);
+        });
+
+        function onEditorOpen() {
+            let editor = document.getElementById("editor");
+
+            let iframe = document.createElement("iframe");
+            iframe.setAttribute("id", "editor_iframe");
+            iframe.setAttribute("src", EDITOR_URL);
+            iframe.setAttribute("allow", "fullscreen");
+            editor.appendChild(iframe);
+
+            editor.classList.add("visible");
+        }
+
+        function onEditorClose() {
+            let editor = document.getElementById("editor");
+            editor.classList.remove("visible");
+
+            let iframe = document.getElementById("editor_iframe");
+            iframe.parentNode.removeChild(iframe);
+        }
+
+        function onExportAvatar() {
+            let iframe = document.getElementById("editor_iframe");
+            let exportAvatarMessage = {
+                "eventName": "export_avatar"
+            };
+            iframe.contentWindow.postMessage(exportAvatarMessage, "*");
+            iframe.contentWindow.focus();
+        }
+
+        function onWindowMessage(evt) {
+            if (evt.type === "message") {
+                if (evt.data?.source === "metaperson_creator") {
+                    let data = evt.data;
+                    let evtName = data?.eventName;
+                    if (evtName === "unity_loaded") {
+                        onUnityLoaded(evt, data);
+                    }
+                    else if (evtName === "model_exported") {
+                        console.log("model url: " + data.url);
+                        console.log("gender: " + data.gender);
+                        console.log("avatar code: " + data.avatarCode);
+                    }
+                }
+            }
+        }
+
+        function onUnityLoaded(evt, data) {
+            let authenticationMessage = {
+                "eventName": "authenticate",
+                "clientId": "03LfjT5D1wkRjEBmOvt8AK6SQEwF2xWNgH2RZWij",
+                "clientSecret": "8b6P9WBY0pghWeZUKmVrIdcMiftRjjw1WD9L3ZDb199vV8DkHALl3YsRLF5x2YYflKSMM1dNGOMVBaOKbsWgenRbb9Gi1o9Mc71cW1EN2E5SgbtS9Cfqhf6nJc0wMkGG",
+                "exportTemplateCode": "",
+            };
+            evt.source.postMessage(authenticationMessage, "*");
+
+            let exportParametersMessage = {
+                "eventName": "set_export_parameters",
+                "format": "glb",
+                "lod": 1,
+                "textureProfile": "1K.png",
+                "useZip": false
+            };
+            evt.source.postMessage(exportParametersMessage, "*");
+
+            let uiParametersMessage = {
+                "eventName": "set_ui_parameters",
+                "isExportButtonVisible": true,
+                "closeExportDialogWhenExportComlpeted": false,
+                "isLoginButtonVisible": true
+            };
+            evt.source.postMessage(uiParametersMessage, "*");
+
+            if (AVATAR_CODE_TO_SHOW) {
+                let showAvatarMessage = {
+                    "eventName": "show_avatar",
+                    "avatarCode": AVATAR_CODE_TO_SHOW
+                };
+                evt.source.postMessage(showAvatarMessage, "*");
+                console.log("show avatar event");
+            }
+        }
+    </script>
+</body>
+
+</html>
