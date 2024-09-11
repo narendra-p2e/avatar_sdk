@@ -127,11 +127,18 @@
                 "lod": 1,
                 "textureProfile": "1K.png",
                 "useZip": false,
-
-                 "outfits_bottom": {
-                 "apply_visibility_masks": false,  /* skip removing the body under the bottom outfit */
-                 "list": [ "jeans_AZAT" ]
+                "outfits_top": {
+                     "apply_visibility_masks": false,  /* skip removing the body under the top outfit */
+                     "color": {"blue": 227,"green": 243,"red": 249 },
+                     "list": [ "polo_Getik" ]
                  },
+                 "outfits_bottom": {
+                     "apply_visibility_masks": false,  /* skip removing the body under the bottom outfit */
+                     "list": [ "jeans_AZAT" ]
+                 },
+                 "outfits_shoes": {
+                     "list": [ "sneakers_AZAT" ]
+                 }
             };
             evt.source.postMessage(exportParametersMessage, "*");
 
