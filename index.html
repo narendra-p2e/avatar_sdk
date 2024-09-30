@@ -127,16 +127,13 @@
                 "lod": 1,
                 "textureProfile": "1K.png",
                 "useZip": false,
-                 "outfits_top": {
-                 "apply_visibility_masks": false
-                 },
-                 "outfits_bottom": {
-                 "apply_visibility_masks": false, 
-                 },
-                 "outfits_shoes": {
-                    "embed": false,
-                    "apply_visibility_masks": false,
-                 }
+                "exportTemplateJson":
+                {
+                    "outfits_shoes":
+                    {
+                        "apply_visibility_masks" : false
+                    }
+                }
             };
             evt.source.postMessage(exportParametersMessage, "*");
 
